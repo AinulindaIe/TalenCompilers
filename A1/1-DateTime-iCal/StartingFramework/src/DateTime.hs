@@ -58,19 +58,20 @@ parseTime = Time <$> parseHour <*> parseMinute <*> parseSecond
 
 {-- Parser for utc--}
 parseUtc :: Parser Char Bool
-parseUtc = (\_ -> True) <$> symbol 'Z' <|> succeed False
+parseUtc = Const True <$> symbol 'Z' <|> succeed False
 
 parseDateTime :: Parser Char DateTime
 parseDateTime = DateTime <$> parseDate <* symbol 'T' <*> parseTime <*> parseUtc
 
 -- Exercise 2
-run :: Parser a b -> [a] -> Maybe b
-run p xs = do
-    (y, ys) <- p xs
-    case ys
-    | [] = Just (y, ys)
-    | otherwise = Nothing
 
+run :: Parser a b -> [a] -> Maybe b
+run p xs = record (p xs)
+    where 
+        record [] = Nothing
+        record ((_, rest_str):xs)
+            | null rest_str = Just x
+            | otherwise = record xs
 -- Exercise 3
 printDateTime :: DateTime -> String
 printDateTime = undefined
